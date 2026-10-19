@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>zby</title>
+    <style>
+        /*一种基于css而非canvas渲染的奶龙快跑游戏，如何意见欢迎与zby沟通：qq2913455342，游戏数值为ai生成*/
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body { height: 100%; overflow: hidden; }
+
+        body {
+            display: grid;
+            place-items: center;
+            background: #fff;
+            font-family: "Courier New", ui-monospace, monospace;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+
+        .game {
+            position: relative;
+            width: min(100vw - 24px, 600px);
+            height: 200px;
+            overflow: hidden;
+            background: #fff;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            font: inherit;
+            text-align: left;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .game:focus { outline: none; }
+        .game:focus-visible { outline: 2px dashed #1e90ff; outline-offset: -4px; }
+
+        .game::before {
+            --score: 0;
+            animation: score-up 90s linear infinite;
+            counter-reset: score var(--score);
+            content: counter(score, decimal-leading-zero);
+            position: absolute;
+            top: 10px;
+            right: 14px;
+            z-index: 30;
+            font-size: 13px;
+            letter-spacing: 2px;
+            color: #9a9a9a;
+            pointer-events: none;
+        }
+
+        @keyframes score-up {
+            to { --score: 999; }
+        }
+
+        .dino {
+            position: absolute;
+            left: 8%;
+            bottom: 8px;
+            z-index: 6;
+            width: 44px;
+            height: 47px;
+            display: block;
+            object-fit: contain;
+        }
+
+        @keyframes run-bob {
+            50% { transform: translateY(-2px); }
+        }
+
+        .game:active .dino {
+            animation: jump 0.55s cubic-bezier(0.34, 0, 0.64, 1) infinite;
+        }
+
+        @keyframes jump {
+            0%   { transform: translateY(0); }
+            45%  { transform: translateY(-96px); }
+            100% { transform: translateY(0); }
+        }
+
+        .hazard {
+            position: absolute;
+            left: 100%;
+            bottom: 8px;
+            z-index: 7;
+            font-size: 38px;
+            line-height: 1;
+            animation:
+                    hazard-move 2.4s linear infinite,
+                    hazard-hit  2.4s linear infinite;
+        }
+
+        @keyframes hazard-move {
+            from { left: 100%; }
+            to   { left: -15%; }
+        }
+
+        @keyframes hazard-hit {
+            0%, 78%   { filter: none; transform: scale(1); }
+            80%       { filter: drop-shadow(0 0 10px #ff3b30) saturate(2.5); transform: scale(1.12); }
+            82%, 100% { filter: none; transform: scale(1); }
+        }
+
+        .game:active .hazard {
+            animation-play-state: running, paused;
+            filter: none !important;
+            transform: scale(1) !important;
+        }
+
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 20;
+            pointer-events: none;
+            background: rgba(255, 59, 48, 0.12);
+            opacity: 0;
+            animation: hit-flash 2.4s linear infinite;
+        }
+
+        @keyframes hit-flash {
+            0%, 78%   { opacity: 0; }
+            80%       { opacity: 1; }
+            82%, 100% { opacity: 0; }
+        }
+
+        .overlay::after {
+            content: "GAME OVER";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 5px;
+            color: #ff3b30;
+            opacity: 0;
+            animation: gameover-text 2.4s linear infinite;
+        }
+
+        @keyframes gameover-text {
+            0%, 78%   { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+            80%       { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            82%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .game:active .overlay,
+        .game:active .overlay::after {
+            animation-play-state: paused;
+            opacity: 0 !important;
+        }
+    </style>
+</head>
+<body ontouchstart="">
+<button class="game" type="button" aria-label="恐龙快跑：按住鼠标、手指或空格跳跃">
+    <img class="dino" alt="恐龙"
+         src="屏幕截图%202026-10-19%20112828.png">
+
+
+    <span class="hazard">&gt;</span>
+    <span class="overlay"></span>
+</button>
+</body>
+</html>
